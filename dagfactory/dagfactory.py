@@ -7,16 +7,19 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional, Union
 
 import yaml
+import yaml_include
 from airflow.configuration import conf as airflow_conf
 from airflow.models import DAG
 
 from dagfactory.dagbuilder import DagBuilder
+from dagfactory.dbtdagbuilder import DbtDagBuilder
 from dagfactory.exceptions import DagFactoryException, DagFactoryConfigException
 
 
 # these are params that cannot be a dag name
 SYSTEM_PARAMS: List[str] = ["default", "task_groups"]
 
+yaml.add_constructor('!include', yaml_include.Constructor())
 
 class DagFactory:
     """
@@ -106,7 +109,7 @@ class DagFactory:
 
         for dag_name, dag_config in dag_configs.items():
             dag_config["task_groups"] = dag_config.get("task_groups", {})
-            dag_builder: DagBuilder = DagBuilder(
+            dag_builder: DagBuilder = DbtDagBuilder(
                 dag_name=dag_name,
                 dag_config=dag_config,
                 default_config=default_config,

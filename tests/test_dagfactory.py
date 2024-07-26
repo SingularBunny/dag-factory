@@ -1,5 +1,6 @@
 import os
 import datetime
+from pathlib import Path
 
 import pytest
 from airflow.models.variable import Variable
@@ -11,6 +12,8 @@ here = os.path.dirname(__file__)
 from dagfactory import dagfactory, load_yaml_dags
 
 TEST_DAG_FACTORY = os.path.join(here, "fixtures/dag_factory.yml")
+TEST_DAG_FACTORY_DBT = os.path.join(here, "fixtures/dag_factory_dbt.yml")
+TEST_DAG_FACTORY_DBT_TASK_GROUP = os.path.join(here, "fixtures/dag_factory_dbt_task_group.yml")
 INVALID_YAML = os.path.join(here, "fixtures/invalid_yaml.yml")
 INVALID_DAG_FACTORY = os.path.join(here, "fixtures/invalid_dag_factory.yml")
 DAG_FACTORY_KUBERNETES_POD_OPERATOR = os.path.join(
@@ -92,6 +95,9 @@ DAG_FACTORY_CALLBACK_CONFIG = {
     }
 }
 
+@pytest.fixture(scope="session", autouse=True)
+def set_env():
+    os.environ["DBT_ROOT_PATH"] = str(Path(__file__).parent / "dbt")
 
 @pytest.fixture(autouse=True)
 def build_path_for_doc_md():
@@ -331,6 +337,19 @@ def test_kubernetes_pod_operator_dag():
     td = dagfactory.DagFactory(DAG_FACTORY_KUBERNETES_POD_OPERATOR)
     td.generate_dags(globals())
     assert "example_dag" in globals()
+
+
+def test_generate_dbt_dag_valid():
+    td = dagfactory.DagFactory(TEST_DAG_FACTORY_DBT)
+    td.generate_dags(globals())
+    assert "example_dbt_dag" in globals()
+
+
+def test_generate_dbt_task_group_valid():
+    td = dagfactory.DagFactory(TEST_DAG_FACTORY_DBT_TASK_GROUP)
+    td.generate_dags(globals())
+    assert "example_dbt_dag_with_task_groups" in globals()
+    assert "task_group_1" in globals()["example_dbt_dag_with_task_groups"].task_group.get_task_group_dict()
 
 
 def test_variables_as_arguments_dag():

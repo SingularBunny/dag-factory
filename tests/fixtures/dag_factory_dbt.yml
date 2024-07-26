@@ -1,0 +1,35 @@
+default:
+  concurrency: 1
+  dagrun_timeout_sec: 600
+  default_args:
+    end_date: 2018-03-05
+    owner: default_owner
+    retries: 1
+    retry_delay_sec: 300
+    start_date: 2018-03-01
+  default_view: tree
+  max_active_runs: 1
+  orientation: LR
+  schedule_interval: 0 1 * * *
+example_dbt_dag:
+  dag_class: cosmos.DbtDag
+  # dbt/cosmos-specific parameters
+  project_config: jaffle_shop
+  profile_config:
+    profile_name: default
+    target_name: dev
+    profile_mapping:
+      mapping_class: cosmos.profiles.PostgresUserPasswordProfileMapping
+      conn_id: airflow_db
+      profile_args:
+        schema: public
+  operator_args:
+    install_deps: True
+    full_refresh: True
+  # normal dag parameters
+  default_args:
+    owner: custom_owner
+    start_date: 2 days
+  description: this is an example dag
+  doc_md: '##here is a doc md string'
+  schedule_interval: 0 3 * * *
