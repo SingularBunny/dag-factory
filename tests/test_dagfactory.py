@@ -14,6 +14,7 @@ from dagfactory import dagfactory, load_yaml_dags
 TEST_DAG_FACTORY = os.path.join(here, "fixtures/dag_factory.yml")
 TEST_DAG_FACTORY_DBT = os.path.join(here, "fixtures/dag_factory_dbt.yml")
 TEST_DAG_FACTORY_DBT_TASK_GROUP = os.path.join(here, "fixtures/dag_factory_dbt_task_group.yml")
+TEST_DAG_FACTORY_DBT_WITH_CONVERTERS = os.path.join(here, "fixtures/dag_factory_dbt_with_converters.yml")
 INVALID_YAML = os.path.join(here, "fixtures/invalid_yaml.yml")
 INVALID_DAG_FACTORY = os.path.join(here, "fixtures/invalid_dag_factory.yml")
 DAG_FACTORY_KUBERNETES_POD_OPERATOR = os.path.join(
@@ -350,6 +351,13 @@ def test_generate_dbt_task_group_valid():
     td.generate_dags(globals())
     assert "example_dbt_dag_with_task_groups" in globals()
     assert "task_group_1" in globals()["example_dbt_dag_with_task_groups"].task_group.get_task_group_dict()
+
+
+def test_generate_dbt_with_converters_valid():
+    td = dagfactory.DagFactory(TEST_DAG_FACTORY_DBT_WITH_CONVERTERS)
+    td.generate_dags(globals())
+    assert "example_dbt_dag_with_converters" in globals()
+    assert "raw_orders_seed" in globals()["example_dbt_dag_with_converters"].task_ids
 
 
 def test_variables_as_arguments_dag():

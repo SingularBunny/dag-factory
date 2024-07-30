@@ -10,10 +10,12 @@ from airflow import DAG, configuration
 from airflow.models import BaseOperator, MappedOperator
 from airflow.utils.module_loading import import_string
 from cosmos import DbtDag, ProfileConfig, ProjectConfig, ExecutionConfig, RenderConfig, DbtTaskGroup
+from cosmos.constants import DbtResourceType
 from cosmos.converter import specific_kwargs, airflow_kwargs
 from cosmos.profiles import PostgresUserPasswordProfileMapping, BaseProfileMapping
 from packaging import version
 
+from dagfactory.dbt_converters import make_converter
 from dagfactory.exceptions import DagFactoryException, DagFactoryConfigException
 
 try:
@@ -70,6 +72,13 @@ class DbtDagBuilder(DagBuilder):
 
         render_config_kwargs = dbt_specific_kwargs.get("render_config", None)
         if render_config_kwargs:
+            node_converters = render_config_kwargs.get("node_converters", {})
+            node_converters_dict = {}
+            for resource_type, converter_rules in node_converters.items():
+                node_converters_dict[DbtResourceType(resource_type)] = make_converter(resource_type, converter_rules)
+            if node_converters_dict:
+                render_config_kwargs["node_converters"] = node_converters_dict
+
             dbt_specific_kwargs["render_config"] = RenderConfig(**render_config_kwargs)
 
         execution_config_kwargs = dbt_specific_kwargs.get("execution_config", None)

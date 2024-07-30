@@ -23,7 +23,7 @@ VERSION = None
 
 here = os.path.abspath(os.path.dirname(__file__))
 
-REQUIRED = ["apache-airflow[http,kubernetes]>=2.0.0", "pyyaml", "packaging", "astronomer-cosmos", "pyyaml-include"]
+REQUIRED = ["apache-airflow[http,kubernetes]>=2.0.0", "pyyaml", "packaging", "astronomer-cosmos", "ruamel.yaml", "ccorp-yaml-include-relative-path"]
 DEV_REQUIRED = ["black", "pytest", "pylint", "pytest-cov", "tox", "dbt-postgres"]
 
 try:

@@ -6,10 +6,10 @@ from itertools import chain
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Union
 
-import yaml
-import yaml_include
 from airflow.configuration import conf as airflow_conf
 from airflow.models import DAG
+from ccorp.ruamel.yaml.include import YAML
+from ruamel.yaml import SafeLoader, Node
 
 from dagfactory.dagbuilder import DagBuilder
 from dagfactory.dbtdagbuilder import DbtDagBuilder
@@ -18,8 +18,6 @@ from dagfactory.exceptions import DagFactoryException, DagFactoryConfigException
 
 # these are params that cannot be a dag name
 SYSTEM_PARAMS: List[str] = ["default", "task_groups"]
-
-yaml.add_constructor('!include', yaml_include.Constructor())
 
 class DagFactory:
     """
@@ -66,15 +64,15 @@ class DagFactory:
         # pylint: disable=consider-using-with
         try:
 
-            def __join(loader: yaml.FullLoader, node: yaml.Node) -> str:
+            def __join(loader: SafeLoader, node: Node) -> str:
                 seq = loader.construct_sequence(node)
                 return "".join([str(i) for i in seq])
 
-            yaml.add_constructor("!join", __join, yaml.FullLoader)
+            yaml = YAML(typ='safe', pure=True)
+            yaml.constructor.add_constructor("!join", __join)
 
             config: Dict[str, Any] = yaml.load(
-                stream=open(config_filepath, "r", encoding="utf-8"),
-                Loader=yaml.FullLoader,
+                stream=open(config_filepath, "r", encoding="utf-8")
             )
         except Exception as err:
             raise DagFactoryConfigException("Invalid DAG Factory config file") from err

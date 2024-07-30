@@ -1,0 +1,32 @@
+!exclude includes:
+- !include default_config.yaml
+
+example_dbt_dag_with_converters:
+  dag_class: cosmos.DbtDag
+  # dbt/cosmos-specific parameters
+  project_config: jaffle_shop
+  profile_config:
+    profile_name: default
+    target_name: dev
+    profile_mapping:
+      mapping_class: cosmos.profiles.PostgresUserPasswordProfileMapping
+      conn_id: airflow_db
+      profile_args:
+        schema: public
+  render_config:
+    select: ["path:seeds/raw_orders.csv"]
+    node_converters:
+      seed:
+        raw_orders:
+          <<: *sql_sensor
+          parameters: {table: raw_orders}
+  operator_args:
+    install_deps: True
+    full_refresh: True
+  # normal dag parameters
+  default_args:
+    owner: custom_owner
+    start_date: 2 days
+  description: this is an example dag
+  doc_md: '##here is a doc md string'
+  schedule_interval: 0 3 * * *
