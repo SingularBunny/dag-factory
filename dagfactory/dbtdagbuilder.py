@@ -50,9 +50,14 @@ DEFAULT_DBT_ROOT_PATH = Path(__file__).parent / "dbt"
 
 class DbtDagBuilder(DagBuilder):
 
-    def __init__(self, dag_name: str, dag_config: Dict[str, Any], default_config: Dict[str, Any]) -> None:
+    def __init__(self,
+                 dag_name: str,
+                 dag_config: Dict[str, Any],
+                 default_config: Dict[str, Any],
+                 user_defined_macros: Dict[str, Any] = {}) -> None:
         super().__init__(dag_name, dag_config, default_config)
         self.dbt_root_path = Path(os.getenv("DBT_ROOT_PATH", DEFAULT_DBT_ROOT_PATH))
+        self.user_defined_macros: Dict[str, Any] = user_defined_macros
 
     def parse_dbt_params(self, shared_execution_config: ExecutionConfig, params: Dict[str, Any]):
         dbt_specific_kwargs = specific_kwargs(**params)
@@ -228,6 +233,7 @@ class DbtDagBuilder(DagBuilder):
             dag_kwargs["schedule"] = [Dataset(uri) for uri in datasets_uri]
 
         dag_kwargs["params"] = dag_params.get("params", None)
+        dag_kwargs["user_defined_macros"] = self.user_defined_macros
 
         dag_str: str = dag_params.pop("dag_class", "airflow.DAG")
 

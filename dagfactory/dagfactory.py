@@ -98,7 +98,7 @@ class DagFactory:
         """
         return self.config.get("default", {})
 
-    def build_dags(self) -> Dict[str, DAG]:
+    def build_dags(self, user_defined_macros: Dict[str, Any] = {}) -> Dict[str, DAG]:
         """Build DAGs using the config file."""
         dag_configs: Dict[str, Dict[str, Any]] = self.get_dag_configs()
         default_config: Dict[str, Any] = self.get_default_config()
@@ -111,6 +111,7 @@ class DagFactory:
                 dag_name=dag_name,
                 dag_config=dag_config,
                 default_config=default_config,
+                user_defined_macros=user_defined_macros
             )
             try:
                 dag: Dict[str, Union[str, DAG]] = dag_builder.build()
@@ -134,14 +135,14 @@ class DagFactory:
         for dag_id, dag in dags.items():
             globals[dag_id]: DAG = dag
 
-    def generate_dags(self, globals: Dict[str, Any]) -> None:
+    def generate_dags(self, globals: Dict[str, Any], user_defined_macros: Dict[str, Any] = {}) -> None:
         """
         Generates DAGs from YAML config
 
         :param globals: The globals() from the file used to generate DAGs. The dag_id
             must be passed into globals() for Airflow to import
         """
-        dags: Dict[str, Any] = self.build_dags()
+        dags: Dict[str, Any] = self.build_dags(user_defined_macros)
         self.register_dags(dags, globals)
 
     def clean_dags(self, globals: Dict[str, Any]) -> None:
@@ -173,6 +174,7 @@ def load_yaml_dags(
     globals_dict: Dict[str, Any],
     dags_folder: str = airflow_conf.get("core", "dags_folder"),
     suffix=None,
+    user_defined_macros: Dict[str, Any] = {}
 ):
     """
     Loads all the yaml/yml files in the dags folder
@@ -197,5 +199,5 @@ def load_yaml_dags(
 
     for config_file_path in candidate_dag_files:
         config_file_abs_path = str(config_file_path.absolute())
-        DagFactory(config_file_abs_path).generate_dags(globals_dict)
+        DagFactory(config_file_abs_path).generate_dags(globals_dict, user_defined_macros)
         logging.info("DAG loaded: %s", config_file_path)

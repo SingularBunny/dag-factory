@@ -1,18 +1,12 @@
 !exclude includes:
 - !include default_config.yaml
 
+default:
+  <<: *default
+
 example_dbt_dag_with_converters:
   dag_class: cosmos.DbtDag
   # dbt/cosmos-specific parameters
-  project_config: jaffle_shop
-  profile_config:
-    profile_name: default
-    target_name: dev
-    profile_mapping:
-      mapping_class: cosmos.profiles.PostgresUserPasswordProfileMapping
-      conn_id: airflow_db
-      profile_args:
-        schema: public
   render_config:
     select: ["path:seeds/raw_orders.csv"]
     node_converters:
