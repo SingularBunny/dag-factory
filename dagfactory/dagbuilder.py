@@ -8,9 +8,10 @@ from datetime import datetime, timedelta
 from typing import Any, Callable, Dict, List, Union
 
 from airflow import DAG, configuration
-from airflow.models import BaseOperator, Variable
+from airflow.models import BaseOperator, Variable, Connection
 from airflow.utils.module_loading import import_string
 from packaging import version
+from requests.auth import AuthBase
 
 try:
     from airflow.version import version as AIRFLOW_VERSION
@@ -26,9 +27,9 @@ except ImportError:
 
 # http sensor was moved in 2.4
 try:
-    from airflow.providers.http.sensors.http import HttpSensor
+    from airflow.providers.http.sensors.http import HttpSensor, HttpOperator
 except ImportError:
-    from airflow.sensors.http_sensor import HttpSensor
+    from airflow.sensors.http_sensor import HttpSensor, HttpOperator
 
 # sql sensor was moved in 2.4
 try:
@@ -420,6 +421,15 @@ class DagBuilder:
                     # remove dag-factory specific parameters
                     # Airflow 2.0 doesn't allow these to be passed to operator
                     del task_params["response_check_lambda"]
+
+            if issubclass(operator_obj, HttpOperator):
+                if task_params.get("auth_type"):
+                    auth_type_class = task_params.get("auth_type")
+                    try:
+                        auth_type_obj: Callable[..., AuthBase] = import_string(auth_type_class)
+                    except Exception as err:
+                        raise DagFactoryException(f"Failed to import Auth Type: {auth_type_class}") from err
+                    task_params["auth_type"] = auth_type_obj
 
             # KubernetesPodOperator
             if issubclass(operator_obj, KubernetesPodOperator):
