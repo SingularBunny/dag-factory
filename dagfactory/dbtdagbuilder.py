@@ -80,7 +80,7 @@ class DbtDagBuilder(DagBuilder):
             node_converters = render_config_kwargs.get("node_converters", {})
             node_converters_dict = {}
             for resource_type, converter_rules in node_converters.items():
-                node_converters_dict[DbtResourceType(resource_type)] = make_converter(resource_type, converter_rules)
+                node_converters_dict[DbtResourceType(resource_type)] = make_converter(resource_type, converter_rules, self)
             if node_converters_dict:
                 render_config_kwargs["node_converters"] = node_converters_dict
 
