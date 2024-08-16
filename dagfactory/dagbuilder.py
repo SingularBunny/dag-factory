@@ -24,12 +24,17 @@ try:
 except ImportError:
     from airflow.operators.python_operator import BranchPythonOperator, PythonOperator
 
+# http operator was moved in 2.4
+try:
+    from airflow.providers.http.operators.http import HttpOperator
+except ImportError:
+    from airflow.operators.http_operator import SimpleHttpOperator as HttpOperator
 
 # http sensor was moved in 2.4
 try:
-    from airflow.providers.http.sensors.http import HttpSensor, HttpOperator
+    from airflow.providers.http.sensors.http import HttpSensor
 except ImportError:
-    from airflow.sensors.http_sensor import HttpSensor, HttpOperator
+    from airflow.sensors.http_sensor import HttpSensor
 
 # sql sensor was moved in 2.4
 try:
