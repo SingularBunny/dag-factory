@@ -6,6 +6,7 @@ from airflow.utils.task_group import TaskGroup
 from cosmos.airflow.graph import generate_task_or_group
 from cosmos.dbt.graph import DbtNode
 
+from build.lib.dagfactory.dbtdagbuilder import DagBuilder
 from dagfactory.exceptions import DagFactoryException
 
 
@@ -14,12 +15,10 @@ def make_converter(resource_type: str, converter_rules: Dict[str, Any]) -> Calla
         rule = converter_rules.get(node.name, None)
         if rule:
             operator_class = rule.pop("class")
-            try:
-                operator_obj: Callable = import_string(operator_class)
-            except Exception as err:
-                raise DagFactoryException(f"Failed to import converter: {operator_class}") from err
-
-            return operator_obj(dag=dag, task_group=task_group, task_id=f"{node.name}_{resource_type}", **rule)
+            rule["dag"] = dag
+            rule["task_group"] = task_group
+            rule["task_id"] = f"{node.name}_{resource_type}"
+            return DagBuilder.make_task(operator_class, rule)
         else:
             return generate_task_or_group(dag, task_group, node, **kwargs)
 
