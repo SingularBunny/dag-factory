@@ -13,7 +13,7 @@ def make_converter(resource_type: str, converter_rules: Dict[str, Any], dag_buil
     def convert_source(dag: DAG, task_group: TaskGroup, node: DbtNode, **kwargs):
         rule = converter_rules.get(node.name, None)
         if rule:
-            operator_class = rule.pop("class")
+            operator_class = rule.pop("operator")
             rule["dag"] = dag
             rule["task_group"] = task_group
             rule["task_id"] = f"{node.name}_{resource_type}"

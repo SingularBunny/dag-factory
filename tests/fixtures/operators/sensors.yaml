@@ -1,4 +1,4 @@
 sql_sensor: &sql_sensor
-  class: airflow.providers.common.sql.sensors.sql.SqlSensor
+  operator: airflow.providers.common.sql.sensors.sql.SqlSensor
   conn_id: "airflow_db"
   sql: "select count(1) from :table"
