@@ -61,8 +61,8 @@ class DbtDagBuilder(DagBuilder):
 
     def parse_dbt_params(self, shared_execution_config: ExecutionConfig, params: Dict[str, Any]):
         dbt_specific_kwargs = specific_kwargs(**params)
-        profile_config_kwargs = dbt_specific_kwargs.get("profile_config", {})
-        profile_mapping_kwargs = profile_config_kwargs.pop("profile_mapping", {})
+        profile_config_kwargs = dbt_specific_kwargs.get("profile_config", {}).copy()
+        profile_mapping_kwargs = profile_config_kwargs.pop("profile_mapping", {}).copy()
         profile_mapping_class = profile_mapping_kwargs.pop("mapping_class", None)
         try:
             profile_mapping_obj: Callable[..., BaseProfileMapping] = import_string(profile_mapping_class)
