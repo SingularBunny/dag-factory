@@ -427,7 +427,7 @@ class DagBuilder:
                     # Airflow 2.0 doesn't allow these to be passed to operator
                     del task_params["response_check_lambda"]
 
-            if issubclass(operator_obj, HttpOperator):
+            if issubclass(operator_obj, (HttpOperator, HttpSensor)):
                 if task_params.get("auth_type"):
                     auth_type_class = task_params.get("auth_type")
                     try:

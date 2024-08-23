@@ -1,28 +1,10 @@
-default:
-  default_args:
-    end_date: 2018-03-05
-    owner: default_owner
-    retries: 1
-    retry_delay_sec: 300
-    start_date: 2018-03-01
-  default_view: tree
-  max_active_runs: 1
-  orientation: LR
-  schedule_interval: 0 1 * * *
+!exclude includes:
+- !include default_config.yaml
+
+default: *default
+
+
 example_dbt_dag_with_task_groups:
-  # dbt/cosmos-specific parameters
-  project_config: jaffle_shop
-  profile_config: &profile_config
-    profile_name: default
-    target_name: dev
-    profile_mapping:
-      mapping_class: cosmos.profiles.PostgresUserPasswordProfileMapping
-      conn_id: airflow_db
-      profile_args:
-        schema: public
-  operator_args:
-    install_deps: True
-    full_refresh: True
   # normal dag parameters
   description: "this dag uses task groups"
   task_groups:
@@ -31,7 +13,7 @@ example_dbt_dag_with_task_groups:
       tooltip: "this is a task group"
       # dbt/cosmos-specific parameters
       project_config: jaffle_shop
-      profile_config: *profile_config
+      profile_config: *default_profile_config
       render_config:
         select: ["path:seeds/raw_orders.csv"]
       dependencies: [task_1]

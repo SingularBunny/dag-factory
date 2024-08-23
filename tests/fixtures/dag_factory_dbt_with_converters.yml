@@ -3,6 +3,7 @@
 
 default:
   <<: *default
+  profile_config: *default_profile_config
 
 example_dbt_dag_with_converters:
   dag_class: cosmos.DbtDag
