@@ -314,11 +314,10 @@ class DbtDagBuilder(DagBuilder):
             )
             tasks_dict[task.task_id]: BaseOperator = task
 
-        if isinstance(dag, DbtDag):
-            for task_id in dag.task_ids:
-                if task_id not in tasks_dict:
-                    task = dag.task_dict[task_id]
-                    tasks_dict[task_id] = dag.task_dict[task_id]
+        # for tasks generated from DBT
+        for task_id in dag.task_ids:
+            if task_id not in tasks_dict:
+                tasks_dict[task_id] = dag.task_dict[task_id]
 
         # set task dependencies after creating tasks
         self.set_dependencies(

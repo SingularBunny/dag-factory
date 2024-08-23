@@ -25,3 +25,8 @@ example_dbt_dag_with_task_groups:
       operator: airflow.operators.bash_operator.BashOperator
       bash_command: "echo 1"
       dependencies: [task_group_1]
+    task_3:
+      operator: airflow.operators.bash_operator.BashOperator
+      bash_command: "echo 1"
+      task_group_name: task_group_1
+      dependencies: [raw_orders_seed]
