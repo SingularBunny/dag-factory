@@ -313,6 +313,13 @@ class DbtDagBuilder(DagBuilder):
                 operator=operator, task_params=params
             )
             tasks_dict[task.task_id]: BaseOperator = task
+
+        if isinstance(dag, DbtDag):
+            for task_id in dag.task_ids:
+                if task_id not in tasks_dict:
+                    task = dag.task_dict[task_id]
+                    tasks_dict[task_id] = dag.task_dict[task_id]
+
         # set task dependencies after creating tasks
         self.set_dependencies(
             tasks, tasks_dict, dag_params.get("task_groups", {}), task_groups_dict

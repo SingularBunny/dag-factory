@@ -681,7 +681,7 @@ class DagBuilder:
                     tasks_and_task_groups_instances[name]
                 )
                 for dep in conf["dependencies"]:
-                    if tasks_and_task_groups_config[dep].get("task_group"):
+                    if dep in tasks_and_task_groups_config and tasks_and_task_groups_config[dep].get("task_group"):
                         group_id = tasks_and_task_groups_config[dep][
                             "task_group"
                         ].group_id
