@@ -681,11 +681,15 @@ class DagBuilder:
                     tasks_and_task_groups_instances[name]
                 )
                 for dep in conf["dependencies"]:
-                    if dep in tasks_and_task_groups_config and tasks_and_task_groups_config[dep].get("task_group"):
+                    if ('.' not in dep
+                            and dep in tasks_and_task_groups_config
+                            and tasks_and_task_groups_config[dep].get("task_group")):
                         group_id = tasks_and_task_groups_config[dep][
                             "task_group"
                         ].group_id
                         dep = f"{group_id}.{dep}"
+                    elif '.' not in dep:
+                        dep = next((key for key in tasks_and_task_groups_instances.keys() if dep in key), dep)
                     dep: Union[BaseOperator, "TaskGroup"] = (
                         tasks_and_task_groups_instances[dep]
                     )
