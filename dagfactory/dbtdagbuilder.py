@@ -7,7 +7,7 @@ from pathlib import Path
 from typing import List, Dict, Union, Any, Callable
 
 from airflow import DAG, configuration
-from airflow.models import BaseOperator, MappedOperator
+from airflow.models import BaseOperator, MappedOperator, Variable
 from airflow.utils.module_loading import import_string
 from cosmos import DbtDag, ProfileConfig, ProjectConfig, ExecutionConfig, RenderConfig, DbtTaskGroup
 from cosmos.constants import DbtResourceType
@@ -63,6 +63,7 @@ class DbtDagBuilder(DagBuilder):
         dbt_specific_kwargs = specific_kwargs(**params)
         profile_config_kwargs = dbt_specific_kwargs.get("profile_config", {}).copy()
         profile_mapping_kwargs = profile_config_kwargs.pop("profile_mapping", {}).copy()
+        profile_config_kwargs.setdefault("target_name", Variable.get("target_name", default_var="cosmos_target"))
         profile_mapping_class = profile_mapping_kwargs.pop("mapping_class", None)
         try:
             profile_mapping_obj: Callable[..., BaseProfileMapping] = import_string(profile_mapping_class)
