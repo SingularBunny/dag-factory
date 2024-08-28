@@ -12,7 +12,8 @@ example_dbt_dag_with_task_groups:
       task_group_class: "cosmos.DbtTaskGroup"
       tooltip: "this is a task group"
       # dbt/cosmos-specific parameters
-      project_config: jaffle_shop
+      project_config:
+        dbt_project_path: jaffle_shop
       profile_config: *default_profile_config
       render_config:
         select: ["path:seeds/raw_orders.csv"]

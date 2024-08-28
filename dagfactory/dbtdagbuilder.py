@@ -73,8 +73,9 @@ class DbtDagBuilder(DagBuilder):
             **profile_config_kwargs,
             profile_mapping=profile_mapping_obj(**profile_mapping_kwargs),
         )
-        dbt_specific_kwargs["project_config"] = ProjectConfig(
-            self.dbt_root_path / dbt_specific_kwargs.get("project_config", ""))
+        project_config_kwargs = dbt_specific_kwargs.get("project_config", {}).copy()
+        project_config_kwargs["dbt_project_path"] = self.dbt_root_path / project_config_kwargs.get("dbt_project_path", "")
+        dbt_specific_kwargs["project_config"] = ProjectConfig(**project_config_kwargs)
 
         render_config_kwargs = dbt_specific_kwargs.get("render_config", None)
         if render_config_kwargs:

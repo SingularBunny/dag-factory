@@ -12,7 +12,8 @@ default: &default
   orientation: LR
   schedule_interval: 0 1 * * *
   # dbt/cosmos-specific parameters
-  project_config: jaffle_shop
+  project_config:
+    dbt_project_path: jaffle_shop
   default_profile_config: &default_profile_config
     profile_name: default
     target_name: dev
